@@ -11,5 +11,5 @@ COPY otel-config.yaml /etc/otel-config/otel-config.yaml
 EXPOSE 4317 
 EXPOSE 4318
 
-# Run the collector with the copied config
+ENTRYPOINT ["/otelcol-contrib"]
 CMD ["--config", "/etc/otel-config/otel-config.yaml"]
