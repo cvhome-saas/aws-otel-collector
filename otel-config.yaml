@@ -4,30 +4,20 @@ receivers:
       grpc:
       http:
 
-processors:
-  batch:
-
 exporters:
-  awsxray: {}
-  awsemf: {}
-  awscloudwatchlogs:
-    log_group_name: "/aws/otel/collector"
-    log_stream_name: "otel-stream"
-    region: ${AWS_REGION}
+  debug:
+    verbosity: detailed
 
 service:
   pipelines:
     traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [awsxray]
+      receivers: [ otlp ]
+      exporters: [ debug ]
 
     metrics:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [awsemf]
+      receivers: [ otlp ]
+      exporters: [ debug ]
 
     logs:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [awscloudwatchlogs]
+      receivers: [ otlp ]
+      exporters: [ debug ]
