@@ -12,7 +12,6 @@ exporters:
   awscloudwatchlogs:
     log_group_name: "/otel/collector"
     log_stream_name: "otel-stream"
-    retention: 7
 
 processors:
   batch:
