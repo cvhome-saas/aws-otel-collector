@@ -14,25 +14,65 @@ exporters:
     log_stream_name: "otel-stream"
 
 processors:
-  batch:
+  batch/traces:
+    send_batch_size: 40
+    send_batch_max_size: 60
+    timeout: 1s
+
+  batch/metrics:
+    send_batch_size: 40
+    send_batch_max_size: 60
+    timeout: 1s
+
+  batch/logs:
+    send_batch_size: 40
+    send_batch_max_size: 60
+    timeout: 1s
+
+  filter/drop_metrics:
+    error_mode: ignore
+    metrics:
+      metric:
+        #        - IsMatch(name, "^http.*")
+        #        - IsMatch(name, "^application.*")
+        #        - IsMatch(name, "^jvm.*")
+        - IsMatch(name, "^spring.*")
+        - IsMatch(name, "^processedLogs.*")
+        - IsMatch(name, "^disk.*")
+        - IsMatch(name, "^jdbc.*")
+        - IsMatch(name, "^system.*")
+        - IsMatch(name, "^process.*")
+        - IsMatch(name, "^tomcat.*")
+        - IsMatch(name, "^nodejs.*")
+        - IsMatch(name, "^logback.*")
+        - IsMatch(name, "^hikaricp.*")
+        - IsMatch(name, "^executor.*")
+        - IsMatch(name, "^tasks.*")
+        - IsMatch(name, "^v8js.*")
+
   memory_limiter:
-    limit_mib: 400
-    spike_limit_mib: 100
     check_interval: 5s
+    limit_mib: 4000
+    spike_limit_mib: 500
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
 
 service:
+  extensions: [health_check]
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [ memory_limiter, batch/traces ]
       exporters: [awsxray]
 
     metrics:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [ memory_limiter, filter/drop_metrics, batch/metrics ]
       exporters: [awsemf]
 
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, batch/logs ]
       exporters: [awscloudwatchlogs]
